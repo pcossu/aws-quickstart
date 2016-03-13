@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "AWS CloudFormation Sample Network Template: Single_VPC, Single_Subnet, plus InternetGW, DefaultRoute, NetworkACLs. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
+  "Description" : "AWS CloudFormation Sample Network Template: Single_VPC, Single_Subnet, plus InternetGW, DefaultRoute, NetworkACLs, SecurityGroup, EC2 Instance. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
 
   "Parameters" : {
 
@@ -113,12 +113,37 @@
         "SubnetId" : { "Ref" : "rCustomSubnet" },
         "NetworkAclId" : { "Ref" : "rCustomNetworkAcl" }
       }
+    },
+
+
+  "rCustomSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "VpcId" : {"Ref" : "rCustomVPC"},
+        "GroupDescription" : "Allow inbound SSH, HTTP",
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0"},
+          { "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"}
+         ]
+      }
+    },
+
+ "rCustomEc2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ],
+        "SecurityGroupIds": [{ "Ref": "rCustomSecurityGroup" }],
+		"SubnetId" : { "Ref" : "rCustomSubnet" },
+        "AvailabilityZone" : "eu-west-1a",
+        "KeyName" : { "Ref" : "pKeyName" },
+        "InstanceType": "t2.micro",
+        "ImageId": "ami-e1398992",
+        "InstanceInitiatedShutdownBehavior": "terminate"
+      }
     }
 
 
-	  
-   
-	
+
 	
 	
 }
